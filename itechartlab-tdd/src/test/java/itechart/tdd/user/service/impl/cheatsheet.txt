@@ -1,0 +1,308 @@
+1 Step.
+@Test
+public void whenUserExistsReturnUser() throws Exception {
+	Long userId = 5L;
+	
+	User user = new User();
+	user.setId(userId);
+	user.setFirstName("Vasya");
+	user.setLastName("Pupkin");
+	
+	UserDao userDao = new UserDao() {
+		
+		@Override
+		public void update(User user) {
+			// TODO Auto-generated method stub
+		}
+		
+		@Override
+		public User getById(Long id) throws UserNotFoundException {
+			if(id == userId) {
+				return user;
+			}
+			return null;
+		}
+		
+		@Override
+		public void create(User user) {
+			// TODO Auto-generated method stub
+		}
+	};
+	
+	UserService userService = new UserServiceImpl(userDao);
+	User returnedUser = userService.getById(userId);
+	
+	Assert.assertEquals(user, returnedUser);		
+}
+
+2 Step.
+@Test
+public void whenUserExistsReturnUser() throws Exception {
+	Long userId = 5L;
+	
+	User user = new User();
+	user.setId(userId);
+	user.setFirstName("Vasya");
+	user.setLastName("Pupkin");
+	
+	UserDao userDao = EasyMock.createMock(UserDao.class);
+	EasyMock.expect(userDao.getById(userId)).andReturn(user);
+	EasyMock.replay(userDao);
+	
+	UserService userService = new UserServiceImpl(userDao);
+	User returnedUser = userService.getById(userId);
+	
+	Assert.assertEquals(user, returnedUser);		
+}
+
+3 Step.
+@Test
+public void whenUserDoesNotExistReturnNull() throws Exception {
+	Long userId = 5L;
+	UserDao userDao = EasyMock.createMock(UserDao.class);
+	EasyMock.expect(userDao.getById(userId)).andThrow(new UserNotFoundException());
+	EasyMock.replay(userDao);
+	
+	UserService userService = new UserServiceImpl(userDao);
+	Assert.assertNull(userService.getById(userId));
+}
+
+4 Step.
+private UserService userService;
+	
+	private UserDao userDao;
+	
+	@Before
+	public void init() {
+		userDao = EasyMock.createMock(UserDao.class);
+		userService = new UserServiceImpl(userDao);
+	}
+
+5 Step.
+@RunWith(EasyMockRunner.class)
+public class UserServiceImplTest {
+
+	@Mock
+	private UserDao userDao;
+	
+	@TestSubject
+	private UserService userService = new UserServiceImpl();
+	
+6 Step.
+@Test
+public void whenUserIdIsNullReturnNull() {
+	EasyMock.replay(userDao);
+	User returnedUser = userService.getById(null);
+	Assert.assertNull(returnedUser);
+	EasyMock.verify(userDao);
+}
+
+7 Step.
+@Test
+public void whenNewUserThenSave() {
+	User user = new User();
+	user.setFirstName("Vasya");
+	user.setLastName("Pupkin");
+	
+	userDao.create(user);
+	EasyMock.expectLastCall();
+	
+	EasyMock.replay(userDao);
+	
+	userService.save(user);
+	
+	EasyMock.verify(userDao);
+}
+
+8 Step.
+@Test
+public void whenExistingUserThenUpdate() {
+	User user = new User();
+	user.setId(5L);
+	user.setFirstName("Vasya");
+	user.setLastName("Pupkin");
+	
+	userDao.update(user);
+	EasyMock.expectLastCall();
+	
+	EasyMock.replay(userDao);
+	
+	userService.save(user);
+	
+	EasyMock.verify(userDao);
+}
+
+9 Step.
+@Test(expected = RuntimeException.class)
+public void whenUserIsNullThenTrowRuntimeException() {
+	EasyMock.replay(userDao);
+	userService.save(null);
+	EasyMock.verify(userDao);
+}
+
+10 Step.
+@Test
+public void whenUserIsNullThenThrowRuntimeException() {
+	EasyMock.replay(userDao);
+	exception.expect(RuntimeException.class);
+	exception.expectMessage("User is null");
+	userService.save(null);
+	EasyMock.verify(userDao);
+}
+
+Full UserServiceImplTest class
+package itechart.tdd.user.service.impl;
+
+import org.easymock.EasyMock;
+import org.easymock.EasyMockRunner;
+import org.easymock.Mock;
+import org.easymock.TestSubject;
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+
+import itechart.tdd.user.dao.UserDao;
+import itechart.tdd.user.model.User;
+import itechart.tdd.user.model.UserNotFoundException;
+import itechart.tdd.user.service.UserService;
+
+@RunWith(EasyMockRunner.class)
+public class UserServiceImplTest {
+	
+	@Mock
+	private UserDao userDao;
+	
+	@TestSubject
+	private UserService userService = new UserServiceImpl();
+	
+	@Rule
+	public ExpectedException exception = ExpectedException.none();
+	
+	@Test
+	public void whenUserExistsReturnUser() throws Exception {
+		Long userId = 5L;
+		
+		User user = new User();
+		user.setId(userId);
+		user.setFirstName("Vasya");
+		user.setLastName("Pupkin");
+		
+		EasyMock.expect(userDao.getById(userId)).andReturn(user);
+		EasyMock.replay(userDao);
+		
+		User returnedUser = userService.getById(userId);
+		
+		Assert.assertEquals(user, returnedUser);
+		
+		EasyMock.verify(userDao);
+	}
+	
+	@Test
+	public void whenUserDoesNotExistReturnNull() throws Exception {
+		Long userId = 5L;
+		
+		EasyMock.expect(userDao.getById(userId)).andThrow(new UserNotFoundException());
+		EasyMock.replay(userDao);
+		
+		Assert.assertNull(userService.getById(userId));
+		
+		EasyMock.verify(userDao);
+	}
+	
+	@Test
+	public void whenUserIdIsNullReturnNull() {
+		EasyMock.replay(userDao);
+		User returnedUser = userService.getById(null);
+		Assert.assertNull(returnedUser);
+		EasyMock.verify(userDao);
+	}
+	
+	@Test
+	public void whenNewUserThenSave() {
+		User user = new User();
+		user.setFirstName("Vasya");
+		user.setLastName("Pupkin");
+		
+		userDao.create(user);
+		EasyMock.expectLastCall();
+		
+		EasyMock.replay(userDao);
+		
+		userService.save(user);
+		
+		EasyMock.verify(userDao);
+	}
+	
+	@Test
+	public void whenExistingUserThenUpdate() {
+		User user = new User();
+		user.setId(5L);
+		user.setFirstName("Vasya");
+		user.setLastName("Pupkin");
+		
+		userDao.update(user);
+		EasyMock.expectLastCall();
+		
+		EasyMock.replay(userDao);
+		
+		userService.save(user);
+		
+		EasyMock.verify(userDao);
+	}
+	
+	@Test
+	public void whenUserIsNullThenThrowRuntimeException() {
+		EasyMock.replay(userDao);
+		exception.expect(RuntimeException.class);
+		exception.expectMessage("User is null");
+		userService.save(null);
+		EasyMock.verify(userDao);
+	}
+	
+}
+
+Full UserServiceImpl class:
+package itechart.tdd.user.service.impl;
+
+import itechart.tdd.user.dao.UserDao;
+import itechart.tdd.user.model.User;
+import itechart.tdd.user.model.UserNotFoundException;
+import itechart.tdd.user.service.UserService;
+
+public class UserServiceImpl implements UserService {
+
+	private UserDao userDao;
+	
+	@Override
+	public User getById(Long id) {
+		if(id == null) {
+			return null;
+		}
+		
+		try {
+			return userDao.getById(id);
+		} catch (UserNotFoundException e) {
+			return null;
+		}
+	}
+
+	@Override
+	public void save(User user) {
+		
+		if(user == null) {
+			throw new RuntimeException("User is null");
+		}
+		
+		Long userId = user.getId();
+		if(userId == null) {
+			userDao.create(user);
+		} else {
+			userDao.update(user);
+		}
+	}
+
+}
+
+	
