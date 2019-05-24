@@ -19,83 +19,83 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @PrepareForTest(Summator.class)
 public class PrintingSummatorPowerMockTest {
 
-	@Mock
-	private PrintStream output;
-	
-	private PrintingSummator printingSummator;
-	
-	@Before
-	public void setUp() {
-		printingSummator = new PrintingSummator(output);
-	}
-	
-	@Test
-	public void whenNoSummandsThenPrintError() {
+    @Mock
+    private PrintStream output;
 
-		mockStatic(Summator.class);
-		expect(Summator.sum()).andThrow(new IllegalArgumentException("No summands!"));
-		
-		output.println("Error");
-		expectLastCall();
+    private PrintingSummator printingSummator;
 
-		replayAll();
+    @Before
+    public void setUp() {
+        printingSummator = new PrintingSummator(output);
+    }
 
-		printingSummator.sum();
+    @Test
+    public void whenNoSummandsThenPrintError() {
 
-		verify(output);
-	}
+        mockStatic(Summator.class);
+        expect(Summator.sum()).andThrow(new IllegalArgumentException("No summands!"));
 
-	@Test
-	public void whenOneSummandsThenPrintEquity() {
+        output.println("Error");
+        expectLastCall();
 
-		double summand = 5.0;
-		mockStatic(Summator.class);
-		expect(Summator.sum(summand)).andReturn(summand);
+        replayAll();
 
-		output.println("5.0 = 5.0");
-		expectLastCall();
+        printingSummator.sum();
 
-		replayAll();
+        verify(output);
+    }
 
-		printingSummator.sum(summand);
+    @Test
+    public void whenOneSummandsThenPrintEquity() {
 
-		verify(output);
-	}
+        double summand = 5.0;
+        mockStatic(Summator.class);
+        expect(Summator.sum(summand)).andReturn(summand);
 
-	@Test
-	public void whenSeveralSummadsThenPrintFormula() {
+        output.println("5.0 = 5.0");
+        expectLastCall();
 
-		double summand1 = 7.0;
-		double summand2 = 3.0;
-		mockStatic(Summator.class);
-		expect(Summator.sum(summand1, summand2)).andReturn(10.0);
+        replayAll();
 
-		output.println("7.0 + 3.0 = 10.0");
-		expectLastCall();
+        printingSummator.sum(summand);
 
-		replayAll();
+        verify(output);
+    }
 
-		printingSummator.sum(summand1, summand2);
+    @Test
+    public void whenSeveralSummadsThenPrintFormula() {
 
-		verify(output);
-	}
+        double summand1 = 7.0;
+        double summand2 = 3.0;
+        mockStatic(Summator.class);
+        expect(Summator.sum(summand1, summand2)).andReturn(10.0);
 
-	@Test
-	public void whenNegativeSummandThenWrapItInBrackets() {
+        output.println("7.0 + 3.0 = 10.0");
+        expectLastCall();
 
-		double summand1 = 7.0;
-		double summand2 = -3.0;
-		mockStatic(Summator.class);
-		expect(Summator.sum(summand1, summand2)).andReturn(4.0);
+        replayAll();
 
-		output.println("7.0 + (-3.0) = 4.0");
-		expectLastCall();
+        printingSummator.sum(summand1, summand2);
 
-		replayAll();
+        verify(output);
+    }
 
-		printingSummator.sum(summand1, summand2);
+    @Test
+    public void whenNegativeSummandThenWrapItInBrackets() {
 
-		verify(output);
-	}
+        double summand1 = 7.0;
+        double summand2 = -3.0;
+        mockStatic(Summator.class);
+        expect(Summator.sum(summand1, summand2)).andReturn(4.0);
+
+        output.println("7.0 + (-3.0) = 4.0");
+        expectLastCall();
+
+        replayAll();
+
+        printingSummator.sum(summand1, summand2);
+
+        verify(output);
+    }
 
 }

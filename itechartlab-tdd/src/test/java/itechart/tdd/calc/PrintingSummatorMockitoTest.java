@@ -14,69 +14,66 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import itechart.tdd.calc.PrintingSummator;
-import itechart.tdd.calc.Summator;
-
 @RunWith(MockitoJUnitRunner.class)
 public class PrintingSummatorMockitoTest {
 
-	@Mock
-	private PrintStream output;
+    @Mock
+    private PrintStream output;
 
-	@Mock
-	private Summator summator;
+    @Mock
+    private Summator summator;
 
-	@InjectMocks
-	private PrintingSummator printingSummator = new PrintingSummator();
+    @InjectMocks
+    private PrintingSummator printingSummator = new PrintingSummator();
 
-	@Test
-	public void whenNoSummandsThenPrintError() {
+    @Test
+    public void whenNoSummandsThenPrintError() {
 
 //		doThrow(new IllegalArgumentException("No summands!")).when(summator).sum();
-		when(summator.sum()).thenThrow(new IllegalArgumentException("No summands!"));
+        when(summator.sum()).thenThrow(new IllegalArgumentException("No summands!"));
 
-		printingSummator.sum();
+        printingSummator.sum();
 
-		verify(summator, times(1)).sum();
-		verify(output, only()).println("Error");
-	}
+        verify(summator, times(1)).sum();
+        verify(output, only()).println("Error");
+    }
 
-	@Test
-	public void whenOneSummandsThenPrintEquity() {
+    @Test
+    public void whenOneSummandsThenPrintEquity() {
 
-		double summand = 5.0;
-		when(summator.sum(summand)).thenReturn(summand);
+        double summand = 5.0;
+        when(summator.sum(summand)).thenReturn(summand);
 
-		printingSummator.sum(summand);
+        printingSummator.sum(summand);
 
-		verify(summator, only()).sum(summand);
-		verify(output, only()).println("5.0 = 5.0");
-	}
+        verify(summator, only()).sum(summand);
+        verify(output, only()).println("5.0 = 5.0");
+    }
 
-	@Test
-	public void whenSeveralSummadsThenPrintFormula() {
+    @Test
+    public void whenSeveralSummadsThenPrintFormula() {
 
-		double summand1 = 7.0;
-		double summand2 = 3.0;
-		Mockito.when(summator.sum(summand1, summand2)).thenReturn(10.0);
+        double summand1 = 7.0;
+        double summand2 = 3.0;
+        Mockito.when(summator.sum(summand1, summand2)).thenReturn(10.0);
 
-		printingSummator.sum(summand1, summand2);
+        printingSummator.sum(summand1, summand2);
 
-		verify(summator).sum(summand1, summand2);
-		verify(output).println("7.0 + 3.0 = 10.0");
-	}
+        verify(summator).sum(summand1, summand2);
+        verify(output).println("7.0 + 3.0 = 10.0");
+    }
 
-	@Test
-	public void whenNegativeSummandThenWrapItInBrackets() {
+    @Test
+    public void whenNegativeSummandThenWrapItInBrackets() {
 
-		double summand1 = 7.0;
-		double summand2 = -3.0;
-		when(summator.sum(summand1, summand2)).thenReturn(4.0);
+        double summand1 = 7.0;
+        double summand2 = -3.0;
+        when(summator.sum(summand1, summand2)).thenReturn(4.0);
 
-		printingSummator.sum(summand1, summand2);
+        printingSummator.sum(summand1, summand2);
 
-		verify(summator).sum(summand1, summand2);
-		verify(output).println("7.0 + (-3.0) = 4.0");
-	}
+        verify(summator).sum(summand1, summand2);
+        verify(output).println("7.0 + (-3.0) = 4.0");
+    }
 
 }

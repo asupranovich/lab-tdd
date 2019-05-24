@@ -5,10 +5,10 @@ import itechart.tdd.user.model.UserNotFoundException;
 
 public interface UserDao {
 
-	User getById(Long id) throws UserNotFoundException;
-	
-	void create(User user);
-	
-	void update(User user);
-	
+    User getById(Long id) throws UserNotFoundException;
+
+    void create(User user);
+
+    void update(User user);
+
 }
