@@ -12,18 +12,19 @@ public class ITechArtSiteTest {
 
     @BeforeClass
     public static void setUp() {
-        System.setProperty("webdriver.gecko.driver", "d:\\temp\\ffdriver\\geckodriver.exe");
+        System.setProperty("webdriver.gecko.driver", "d:\\sashino\\temp\\drivers\\geckodriver.exe");
+//        System.setProperty("webdriver.chrome.driver", "d:\\sashino\\temp\\drivers\\chromedriver.exe");
     }
 
     @Test
     public void testSite() {
         open("http://www.itechart.com");
-        $$(".join-our-team").shouldHaveSize(1);
+        $$("a[href='/careers/']").shouldHaveSize(1);
 
-        $(".join-our-team").click();
+        $("a[href='/careers/']").click();
 
-        $(".content-main").shouldHave(text("JAVA SENIOR SOFTWARE DEVELOPER"));
-//		$(".content-main").shouldHave(text("PYTHON SENIOR SOFTWARE DEVELOPER"));
+//        $(".positions").shouldHave(text("JAVA TEAM LEAD"));
+	$(".positions").shouldHave(text("RUBY TEAM LEAD"));
     }
 
 }

@@ -1,15 +1,7 @@
 package itechart.tdd.account.service;
 
 import itechart.tdd.account.dao.AccountDao;
-import itechart.tdd.account.dao.AccountDaoImpl;
-import itechart.tdd.account.service.impl.AccountServiceImpl2;
-import itechart.tdd.account.service.impl.AccountServiceImpl3;
-import itechart.tdd.account.service.impl.AccountServiceImpl4;
-import itechart.tdd.account.service.impl.AccountServiceImpl5;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Test;
@@ -21,74 +13,91 @@ import org.junit.Test;
 public class AccountServiceImplTest {
 
     @Test
-    public void testDonorBalanceIsReducedByTransferAmount() {
-        
+    public void testDonorBalanceReducedByTransferAmount() {
         AccountDao accountDao = EasyMock.createNiceMock(AccountDao.class);
-        EasyMock.expect(accountDao.getBalance("donor")).andReturn(BigDecimal.valueOf(1000.00));
-        
-        EasyMock.replay(accountDao);
-        
-        AccountService accountService = new AccountServiceImpl3(accountDao);
-        BigDecimal donorBalance = accountService.transfer("donor", "acceptor", BigDecimal.valueOf(100.00));
-        
-        Assert.assertEquals("Donor balance is invalid", BigDecimal.valueOf(900.00), donorBalance);
-        
-        EasyMock.verify(accountDao);
-    }
-    
-    @Test
-    public void testUpdatedDonorBalanceIsPersisted() {
-        
-        AccountDao accountDao = EasyMock.createNiceMock(AccountDao.class);
-        
-        EasyMock.expect(accountDao.getBalance("donor")).andReturn(BigDecimal.valueOf(1000.00));
-        
-        accountDao.setBalance("donor", BigDecimal.valueOf(900.00));
-        EasyMock.expectLastCall();
-        
-        EasyMock.replay(accountDao);
-        
-        AccountService accountService = new AccountServiceImpl3(accountDao);
-        accountService.transfer("donor", "acceptor", BigDecimal.valueOf(100.00));
-        
-        EasyMock.verify(accountDao);
-    }
-    
-    @Test
-    public void testUpdatedAcceptorBalanceIsPersisted() {
-        
-        AccountDao accountDao = EasyMock.createMock(AccountDao.class);
-        
         EasyMock.expect(accountDao.getBalance("donor")).andReturn(BigDecimal.valueOf(1000.00));
         EasyMock.expect(accountDao.getBalance("acceptor")).andReturn(BigDecimal.ZERO);
         
-        accountDao.setBalance("donor", BigDecimal.valueOf(900.00));
-        EasyMock.expectLastCall();
+        EasyMock.replay(accountDao);
+        
+        AccountService accountService = new AccountServiceImpl(accountDao) ;
+        BigDecimal donorBalance = accountService.transfer("donor", "acceptor", BigDecimal.valueOf(100.00));
+        Assert.assertEquals(BigDecimal.valueOf(900.00), donorBalance);
+        
+        EasyMock.verify(accountDao);
+    }
+    
+    @Test
+    public void testAcceptorBalanceIncrementedByTransferAmount() {
+        AccountDao accountDao = EasyMock.createNiceMock(AccountDao.class);
+        EasyMock.expect(accountDao.getBalance("donor")).andReturn(BigDecimal.valueOf(1000.00));
+        EasyMock.expect(accountDao.getBalance("acceptor")).andReturn(BigDecimal.ZERO);
         
         accountDao.setBalance("acceptor", BigDecimal.valueOf(100.00));
         EasyMock.expectLastCall();
         
         EasyMock.replay(accountDao);
         
-        AccountService accountService = new AccountServiceImpl4(accountDao);
+        AccountService accountService = new AccountServiceImpl(accountDao) ;
         accountService.transfer("donor", "acceptor", BigDecimal.valueOf(100.00));
         
         EasyMock.verify(accountDao);
     }
     
-    @Test(expected = AccountNotFoundException.class)
-    public void shouldThrowExceptionWhenNoDonorAccountFound() {
+    @Test
+    public void testDonorBalanceUpdatedOnTransfer() {
+        AccountDao accountDao = EasyMock.createNiceMock(AccountDao.class);
+        EasyMock.expect(accountDao.getBalance("donor")).andReturn(BigDecimal.valueOf(1000.00));
         
+        accountDao.setBalance("donor", BigDecimal.valueOf(900.00));
+        EasyMock.expectLastCall();
+        
+        EasyMock.expect(accountDao.getBalance("acceptor")).andReturn(BigDecimal.ZERO);
+        
+        EasyMock.replay(accountDao);
+        
+        AccountService accountService = new AccountServiceImpl(accountDao) ;
+        accountService.transfer("donor", "acceptor", BigDecimal.valueOf(100.00));
+        
+        EasyMock.verify(accountDao);
+    }
+    
+    @Test (expected = AccountNotFoundException.class)
+    public void shouldThrowExceptionWhenDonorIsNotFound() {
         AccountDao accountDao = EasyMock.createMock(AccountDao.class);
-        
         EasyMock.expect(accountDao.getBalance("donor")).andReturn(null);
         
         EasyMock.replay(accountDao);
         
-        AccountService accountService = new AccountServiceImpl5(accountDao);
+        AccountService accountService = new AccountServiceImpl(accountDao) ;
         accountService.transfer("donor", "acceptor", BigDecimal.valueOf(100.00));
         
         EasyMock.verify(accountDao);        
+    }
+    
+    @Test (expected = AccountNotFoundException.class)
+    public void shouldThrowExceptionWhenAcceptorIsNotFound() {
+        AccountDao accountDao = EasyMock.createMock(AccountDao.class);
+        EasyMock.expect(accountDao.getBalance("donor")).andReturn(BigDecimal.ONE);
+        EasyMock.expect(accountDao.getBalance("acceptor")).andReturn(null);
+        
+        EasyMock.replay(accountDao);
+        
+        AccountService accountService = new AccountServiceImpl(accountDao) ;
+        accountService.transfer("donor", "acceptor", BigDecimal.valueOf(100.00));
+        
+        EasyMock.verify(accountDao);        
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowIllegalArgExceptionWhenParamsInvalid() {
+        AccountDao accountDao = EasyMock.createMock(AccountDao.class);
+        EasyMock.replay(accountDao);
+        
+        AccountService accountService = new AccountServiceImpl(accountDao) ;
+        accountService.transfer(null, "acceptor", BigDecimal.valueOf(100.00));
+        
+        EasyMock.verify(accountDao); 
     }
     
 }
