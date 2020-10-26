@@ -1,4 +1,4 @@
-package com.itechart.tdd.atm.service;
+package com.itechart.tdd.atm.controller;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
-@Disabled
+//@Disabled
 @Tag("integration")
 @SpringBootTest
 @AutoConfigureMockMvc
